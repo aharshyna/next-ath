@@ -3,15 +3,17 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { connectToDatabase } from '../../../lib/db'
 import { verifyPassword } from '../../../lib/auth'
 
-export default NextAuth({
-  session: { jwt: true },
+export const authOptions = {
+  secret: 'YvTlOHaNSxIotKF93mthQtTtPjOxRhLPI720BcJnv7M=', // A random string is used to hash tokens, sign/encrypt cookies and generate cryptographic keys.
+  session: {
+    strategy: 'jwt',
+  },
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
         const client = await connectToDatabase()
 
         const usersCollection = client.db().collection('users')
-        console.log(usersCollection)
         const user = await usersCollection.findOne({ email: credentials.email })
 
         if (!user) {
@@ -35,4 +37,6 @@ export default NextAuth({
       },
     }),
   ],
-})
+}
+
+export default NextAuth(authOptions)
